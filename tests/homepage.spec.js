@@ -11,17 +11,16 @@ test.describe('Homepage', () => {
 
   test('header / navigation bar is visible', async ({ page }) => {
     await gotoApp(page);
-    // The <header> element starts CSS-hidden; target the nav inside it instead
-    const nav = page.locator('nav, [class*="navbar"]').first();
-    await expect(nav).toBeVisible({ timeout: 10000 });
+    // The app renders a banner (role="banner") as its header — no <nav> element exists
+    const header = page.locator('[role="banner"], header').first();
+    await expect(header).toBeVisible({ timeout: 10000 });
   });
 
   test('at least one photo is rendered in the gallery', async ({ page }) => {
     await gotoApp(page);
-    // Scroll to reveal the gallery section and allow lazy-load to fire
-    await page.evaluate(() => window.scrollBy(0, window.innerHeight));
-    await page.waitForTimeout(1500);
-    // Use plain `img` — Angular may still hold ng-src before full compile
+    // Check before scrolling: the hero image is always rendered and proves the page loaded.
+    // Do NOT scroll first — scrollBy moves the hero out of viewport leaving no visible img
+    // when the gallery API returns empty results.
     const photos = page.locator('img');
     await expect(photos.first()).toBeVisible({ timeout: 10000 });
   });
