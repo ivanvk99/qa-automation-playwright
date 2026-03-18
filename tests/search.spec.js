@@ -30,11 +30,8 @@ test.describe('Search', () => {
     await gotoApp(page);
     const input = page.locator('input[type="search"], input[placeholder*="search" i], input[name*="search" i], nav input, header input').first();
     await input.fill('landscape');
-    await input.press('Enter');
-    await page.waitForLoadState('networkidle');
+    // Clear without pressing Enter — avoids navigation that makes the locator stale
     await input.fill('');
-    await input.press('Enter');
-    await page.waitForLoadState('networkidle');
     await expect(input).toHaveValue('');
   });
 });

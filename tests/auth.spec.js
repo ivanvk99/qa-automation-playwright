@@ -10,23 +10,28 @@ test.describe('Login page UI', () => {
 
   test('login page has a username or email field', async ({ page }) => {
     await gotoApp(page, '/#/login');
+    // Wait for Angular to finish rendering the login template
+    await page.waitForSelector('input', { timeout: 15000 });
     const usernameField = page.locator('input[type="email"], input[name="email"], input[type="text"], input[name="username"]').first();
-    await expect(usernameField).toBeVisible();
+    await expect(usernameField).toBeVisible({ timeout: 10000 });
   });
 
   test('login page has a password field', async ({ page }) => {
     await gotoApp(page, '/#/login');
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await page.waitForSelector('input', { timeout: 15000 });
+    await expect(page.locator('input[type="password"]')).toBeVisible({ timeout: 10000 });
   });
 
   test('login page has a submit button', async ({ page }) => {
     await gotoApp(page, '/#/login');
+    await page.waitForSelector('input', { timeout: 15000 });
     const submitBtn = page.locator('button[type="submit"], input[type="submit"], button').filter({ hasText: /log\s*in|sign\s*in|submit/i }).first();
-    await expect(submitBtn).toBeVisible();
+    await expect(submitBtn).toBeVisible({ timeout: 10000 });
   });
 
   test('submitting an empty form shows a validation message', async ({ page }) => {
     await gotoApp(page, '/#/login');
+    await page.waitForSelector('input', { timeout: 15000 });
     const submitBtn = page.locator('button[type="submit"], input[type="submit"], button').filter({ hasText: /log\s*in|sign\s*in|submit/i }).first();
     await submitBtn.click();
     // Either a validation message appears, or the page stays on /login

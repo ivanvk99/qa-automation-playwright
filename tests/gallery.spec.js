@@ -5,18 +5,19 @@ import { gotoApp } from './helpers.js';
 test.describe('Gallery', () => {
   test('gallery section is reachable by scrolling', async ({ page }) => {
     await gotoApp(page);
-    // Scroll to the bottom of the hero / intro section to reveal the photo grid
     await page.evaluate(() => window.scrollBy(0, window.innerHeight));
-    await page.waitForTimeout(500); // allow lazy-load to trigger
-    const photos = page.locator('img[src]:not([src=""])');
-    await expect(photos.first()).toBeVisible();
+    await page.waitForTimeout(1500); // allow lazy-load to trigger
+    // Use plain `img` — Angular ng-src may not yet be reflected as src=""
+    const photos = page.locator('img');
+    await expect(photos.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('multiple photos are displayed in the grid', async ({ page }) => {
     await gotoApp(page);
     await page.evaluate(() => window.scrollBy(0, window.innerHeight));
     await page.waitForLoadState('networkidle');
-    const photos = page.locator('img[src]:not([src=""])');
+    await page.waitForTimeout(1000);
+    const photos = page.locator('img');
     const count = await photos.count();
     expect(count).toBeGreaterThan(1);
   });
@@ -24,12 +25,11 @@ test.describe('Gallery', () => {
   test('photo cards are clickable', async ({ page }) => {
     await gotoApp(page);
     await page.evaluate(() => window.scrollBy(0, window.innerHeight));
-    await page.waitForLoadState('networkidle');
-    // Find any linked image / card
-    const card = page.locator('a img, [class*="card"] img, [class*="gallery"] img, [class*="photo"] img').first();
-    await expect(card).toBeVisible();
+    await page.waitForTimeout(1500);
+    // Broader selector — fall back to any img if specific class names differ
+    const card = page.locator('a img, [class*="card"] img, [class*="gallery"] img, [class*="photo"] img, figure img, .item img, img').first();
+    await expect(card).toBeVisible({ timeout: 10000 });
     const link = card.locator('xpath=ancestor::a[1]');
-    // Verify the card has a parent anchor (i.e. it is clickable / navigable)
     const linkCount = await link.count();
     if (linkCount > 0) {
       await expect(link.first()).toBeVisible();

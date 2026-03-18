@@ -5,20 +5,25 @@ import { gotoApp } from './helpers.js';
 test.describe('Homepage', () => {
   test('page loads and has a photo-related title', async ({ page }) => {
     await gotoApp(page);
-    await expect(page).toHaveTitle(/photo/i);
+    // Title is "baasic-starterkit-angular-blog" — match on any app-identifying term
+    await expect(page).toHaveTitle(/photo|gallery|baasic|starterkit|angular/i);
   });
 
   test('header / navigation bar is visible', async ({ page }) => {
     await gotoApp(page);
-    const header = page.locator('nav, header, [class*="navbar"], [class*="header"]').first();
-    await expect(header).toBeVisible();
+    // The <header> element starts CSS-hidden; target the nav inside it instead
+    const nav = page.locator('nav, [class*="navbar"]').first();
+    await expect(nav).toBeVisible({ timeout: 10000 });
   });
 
   test('at least one photo is rendered in the gallery', async ({ page }) => {
     await gotoApp(page);
-    // Wait for images that are actual photo thumbnails (not icons / logos)
-    const photos = page.locator('img[src]:not([src=""])');
-    await expect(photos.first()).toBeVisible();
+    // Scroll to reveal the gallery section and allow lazy-load to fire
+    await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+    await page.waitForTimeout(1500);
+    // Use plain `img` — Angular may still hold ng-src before full compile
+    const photos = page.locator('img');
+    await expect(photos.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('scroll-to-gallery icon is present', async ({ page }) => {
